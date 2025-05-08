@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 Future<double> getTotalAmount() async {
   double totalAmount = 0;
   final snapshot =
-      await FirebaseFirestore.instance.collection('expenses').get();
+      await FirebaseFirestore.instance.collection(kCollectionName).get();
 
   for (var doc in snapshot.docs) {
     totalAmount += (doc['amount'] as num).toDouble();
@@ -71,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Center(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('expenses')
+                    .collection(kCollectionName)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
