@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1054072094380",
+    "project_id": "cashflo-fc3a2",
+    "storage_bucket": "cashflo-fc3a2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1054072094380:android:19f1b33f1dff6c1b56a909",
+        "android_client_info": {
+          "package_name": "com.darknight.cashflo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFkKDfS0mCCE6_GM8xA3I6NEA6exvZYrA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
