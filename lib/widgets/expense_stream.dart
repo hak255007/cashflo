@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import '../constants.dart';
 import 'expense.dart';
 
 final _firestore = FirebaseFirestore.instance;
@@ -11,7 +12,7 @@ class ExpenseStream extends StatelessWidget {
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: _firestore
-            .collection('expenses')
+            .collection(kCollectionName)
             .orderBy('spending_date', descending: false)
             .snapshots(),
         builder: (context, snapshot) {

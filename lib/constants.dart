@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const kCollectionName = "expenses";
+
 const kTotalAmountTextWidgetStyle = TextStyle(
   color: Color(0xffFF5A5F),
   fontSize: 50,
