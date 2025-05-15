@@ -6,14 +6,17 @@ import 'expense.dart';
 final _firestore = FirebaseFirestore.instance;
 
 class ExpenseStream extends StatelessWidget {
-  const ExpenseStream({super.key});
+  final String floId;
+
+  const ExpenseStream({super.key, required this.floId});
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
         stream: _firestore
-            .collection(kCollectionName)
-            .orderBy('spending_date', descending: false)
+            .collection(kExpenseCollection)
+            .where('flo_id', isEqualTo: floId)
+            .orderBy('spending_date', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
@@ -23,7 +26,16 @@ class ExpenseStream extends StatelessWidget {
               ),
             );
           }
-          final messages = snapshot.data!.docs.reversed;
+
+          // TODO : Test the commented logic
+          // if (snapshot.hasError) {
+          //   return Center(child: Text('Something went wrong'));
+          // }
+          // if (snapshot.data!.docs.isEmpty) {
+          //   return Center(child: Text('No expenses yet'));
+          // }
+
+          final messages = snapshot.data!.docs;
           List<Expense> messageBubbles = [];
           for (var message in messages) {
             final description = message.data()['description'];
@@ -64,13 +76,11 @@ class ExpenseStream extends StatelessWidget {
             messageBubbles.add(messageWidget);
           }
 
-          return Expanded(
-            child: ListView.builder(
-              itemBuilder: (context, index) {
-                return messageBubbles[index];
-              },
-              itemCount: messageBubbles.length,
-            ),
+          return ListView.builder(
+            itemBuilder: (context, index) {
+              return messageBubbles[index];
+            },
+            itemCount: messageBubbles.length,
           );
         });
   }

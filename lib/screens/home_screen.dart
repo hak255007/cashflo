@@ -6,47 +6,23 @@ import 'package:cashflo/screens/add_expense_screen.dart';
 import '../constants.dart';
 
 class HomeScreen extends StatefulWidget {
+  static const String id = "home_screen";
+
   const HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-Future<double> getTotalAmount() async {
-  double totalAmount = 0;
-  final snapshot =
-      await FirebaseFirestore.instance.collection(kCollectionName).get();
-
-  for (var doc in snapshot.docs) {
-    totalAmount += (doc['amount'] as num).toDouble();
-  }
-
-  return totalAmount;
-}
-
 class _HomeScreenState extends State<HomeScreen> {
   var currentAmount = 0;
-  var totalAmount = FutureBuilder<double>(
-    future: getTotalAmount(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return CircularProgressIndicator();
-      } else if (snapshot.hasError) {
-        return Text(
-          'OOPS!!!',
-          style: kTotalAmountTextWidgetStyle,
-        );
-      } else {
-        return Text(
-          '₹${snapshot.data!.toStringAsFixed(2)}',
-          style: kTotalAmountTextWidgetStyle,
-        );
-      }
-    },
-  );
 
   @override
   Widget build(BuildContext context) {
+    final args =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+    final String flo_id = args['flo_id'];
+
     return SafeArea(
         child: Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -54,7 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
           showModalBottomSheet(
               isScrollControlled: true,
               context: context,
-              builder: (context) => AddExpenseScreen());
+              builder: (context) => AddExpenseScreen(
+                    floId: flo_id,
+                  ));
         },
         backgroundColor: Color(0xff087E8B),
         child: Icon(
@@ -71,7 +49,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Center(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection(kCollectionName)
+                    .collection(kExpenseCollection)
+                    .where('flo_id', isEqualTo: flo_id)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
@@ -93,7 +72,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          ExpenseStream()
+          Expanded(
+            child: ExpenseStream(
+              floId: flo_id,
+            ),
+          ),
         ],
       ),
     ));
