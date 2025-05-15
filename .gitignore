@@ -33,6 +33,17 @@ migrate_working_dir/
 .pub/
 /build/
 
+# iOS/Xcode related
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/.symlinks/
+ios/Pods/
+ios/Podfile.lock
+ios/Runner.xcworkspace/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/App.framework
+ios/Flutter/engine/
+
 # Symbolication related
 app.*.symbols
 
@@ -43,3 +54,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Linux related
+linux/flutter/ephemeral/
+linux/Flutter/generated_plugin_registrant.cc
+
+# Windows related
+windows/flutter/ephemeral/
+windows/Flutter/generated_plugin_registrant.cc
