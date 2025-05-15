@@ -56,9 +56,15 @@ app.*.map.json
 /android/app/release
 
 # Linux related
-linux/flutter/ephemeral/
-linux/Flutter/generated_plugin_registrant.cc
+linux/
 
 # Windows related
 windows/flutter/ephemeral/
-windows/Flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugins.cmake
+
+# macOS related
+macos/Pods/
+macos/Podfile.lock
+macos/Flutter/GeneratedPluginRegistrant.swift
+macos/Flutter/ephemeral/
