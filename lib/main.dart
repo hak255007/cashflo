@@ -1,3 +1,4 @@
+import 'package:cashflo/screens/flo_screen.dart';
 import 'package:cashflo/screens/home_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -26,7 +27,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomeScreen(),
-    );
+        home: HomeScreen(),
+        initialRoute: CreateFloScreen.id,
+        routes: {
+          CreateFloScreen.id: (context) => CreateFloScreen(),
+          HomeScreen.id: (context) => HomeScreen()
+        });
   }
 }

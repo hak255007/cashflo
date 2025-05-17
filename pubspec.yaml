@@ -40,6 +40,7 @@ dependencies:
   uuid: ^4.2.1
   cloud_firestore: ^5.6.6
   firebase_auth: ^5.5.2
+  share_plus: ^11.0.0
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +74,11 @@ flutter:
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
+
+  fonts:
+    - family: Caveat
+      fonts:
+        - asset: fonts/Caveat-VariableFont_wght.ttf
 
   # To add custom fonts to your application, add a fonts section here,
   # in this "flutter" section. Each entry in this list should have a

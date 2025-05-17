@@ -1,3 +1,4 @@
+import 'package:cashflo/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -5,7 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 final _firestore = FirebaseFirestore.instance;
 
 class AddExpenseScreen extends StatefulWidget {
-  const AddExpenseScreen({super.key});
+  final String floId;
+  const AddExpenseScreen({super.key, required this.floId});
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
@@ -19,11 +21,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       // Do something with the input
-      _firestore.collection("expenses").add({
+      _firestore.collection(kExpenseCollection).add({
         'description': _descriptionController.text,
         'amount': double.tryParse(_amountController.text.trim()),
-        'spending_date': DateTime.timestamp()
+        'spending_date': DateTime.timestamp(),
+        'flo_id': widget.floId
       });
+
+      // TODO : Data should be added in the flo_data array
+
       Navigator.pop(context);
     }
   }
