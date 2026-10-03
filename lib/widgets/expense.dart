@@ -8,12 +8,14 @@ class Expense extends StatelessWidget {
       required this.description,
       required this.amount,
       required this.longPressCallBack,
-      required this.spendingDate});
+      required this.spendingDate,
+      required this.username});
 
   final String description;
   final double amount;
   final DateTime spendingDate;
   final void Function() longPressCallBack;
+  final String username;
 
   String _formatDate(DateTime date) {
     final day = date.day;
@@ -58,12 +60,35 @@ class Expense extends StatelessWidget {
             color: Colors.black87,
           ),
         ),
-        subtitle: Text(
-          _formatDate(spendingDate),
-          style: TextStyle(
-            color: Color(0xff3C3C3C),
-            fontSize: 14,
-            fontStyle: FontStyle.italic,
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _formatDate(spendingDate),
+                style: TextStyle(
+                  color: Color(0xff3C3C3C),
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Row(
+                children: [
+                  Icon(Icons.person, size: 13, color: Color(0xff087E8B)),
+                  const SizedBox(width: 4),
+                  Text(
+                    "Added by $username",
+                    style: TextStyle(
+                      color: Color(0xff087E8B),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ),
         trailing: Text(

@@ -2,6 +2,7 @@ import 'package:cashflo/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 final _firestore = FirebaseFirestore.instance;
 
@@ -18,19 +19,40 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _amountController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      final userId = FirebaseAuth.instance.currentUser?.uid;
+
+      // Read from cache only, so this never waits on a network round-trip
+      // and stays instant/offline-friendly like the rest of this form.
+      String? username;
+      if (userId != null) {
+        try {
+          final userDoc = await _firestore
+              .collection('users')
+              .doc(userId)
+              .get(const GetOptions(source: Source.cache));
+          username = userDoc.data()?['username'] as String?;
+        } catch (_) {
+          // Not cached (e.g. first-ever offline use before username was
+          // fetched once) - proceed without blocking the add.
+          username = null;
+        }
+      }
+
       // Do something with the input
       _firestore.collection(kExpenseCollection).add({
         'description': _descriptionController.text,
         'amount': double.tryParse(_amountController.text.trim()),
         'spending_date': DateTime.timestamp(),
-        'flo_id': widget.floId
+        'flo_id': widget.floId,
+        'user_id': userId,
+        'username': username,
       });
 
       // TODO : Data should be added in the flo_data array
 
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
     }
   }
 

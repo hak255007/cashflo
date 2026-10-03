@@ -1,9 +1,7 @@
-import 'package:cashflo/widgets/expense_stream.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:cashflo/screens/add_expense_screen.dart';
-
-import '../constants.dart';
+import 'package:cashflo/screens/expenses_page.dart';
+import 'package:cashflo/screens/total_expenses_page.dart';
 
 class HomeScreen extends StatefulWidget {
   static const String id = "home_screen";
@@ -15,7 +13,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  var currentAmount = 0;
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,61 +29,67 @@ class _HomeScreenState extends State<HomeScreen> {
     final String flo_id = args['flo_id'];
 
     return SafeArea(
-        child: Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet(
-              isScrollControlled: true,
-              context: context,
-              builder: (context) => AddExpenseScreen(
-                    floId: flo_id,
-                  ));
-        },
-        backgroundColor: Color(0xff087E8B),
-        child: Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-      ),
-      backgroundColor: Color(0xffF5F5F5),
-      body: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.only(top: 60, left: 30, right: 30, bottom: 30),
-            color: Color(0xff087E8B),
-            child: Center(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection(kExpenseCollection)
-                    .where('flo_id', isEqualTo: flo_id)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return CircularProgressIndicator();
-                  }
-
-                  final docs = snapshot.data!.docs;
-                  double total = 0.0;
-
-                  for (var doc in docs) {
-                    total += (doc['amount'] as num).toDouble();
-                  }
-
-                  return Text(
-                    '₹${total.toStringAsFixed(2)}',
-                    style: kTotalAmountTextWidgetStyle,
-                  );
+      child: Scaffold(
+        backgroundColor: const Color(0xffF5F5F5),
+        // Only show the add-expense FAB on the expenses page
+        floatingActionButton: _currentPage == 0
+            ? FloatingActionButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                      isScrollControlled: true,
+                      context: context,
+                      builder: (context) => AddExpenseScreen(
+                            floId: flo_id,
+                          ));
                 },
+                backgroundColor: const Color(0xff087E8B),
+                child: const Icon(
+                  Icons.add,
+                  color: Colors.white,
+                ),
+              )
+            : null,
+        body: Column(
+          children: [
+            Expanded(
+              child: PageView(
+                controller: _pageController,
+                onPageChanged: (index) {
+                  setState(() => _currentPage = index);
+                },
+                children: [
+                  ExpensesPage(floId: flo_id),
+                  TotalExpensesPage(floId: flo_id),
+                ],
               ),
             ),
-          ),
-          Expanded(
-            child: ExpenseStream(
-              floId: flo_id,
-            ),
-          ),
-        ],
+            const SizedBox(height: 12),
+            _buildPageIndicator(),
+            const SizedBox(height: 12),
+          ],
+        ),
       ),
-    ));
+    );
+  }
+
+  Widget _buildPageIndicator() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(2, (index) {
+        final isActive = index == _currentPage;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          height: 8,
+          width: isActive ? 20 : 8,
+          decoration: BoxDecoration(
+            color: isActive
+                ? const Color(0xff087E8B)
+                : const Color(0xff087E8B).withOpacity(0.25),
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
+    );
   }
 }

@@ -41,11 +41,13 @@ class ExpenseStream extends StatelessWidget {
             final description = message.data()['description'];
             final double amount = message.data()['amount'];
             final DateTime spendDate = message['spending_date'].toDate();
+            final username = message.data()['username'];
 
             final messageWidget = Expense(
               description: description,
               amount: amount,
               spendingDate: spendDate,
+              username: username,
               longPressCallBack: () async {
                 showDialog(
                   context: context,
