@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'category_icons.dart';
+
 class Expense extends StatelessWidget {
   const Expense(
       {super.key,
@@ -9,13 +11,15 @@ class Expense extends StatelessWidget {
       required this.amount,
       required this.longPressCallBack,
       required this.spendingDate,
-      required this.username});
+      required this.username,
+      required this.category});
 
   final String description;
   final double amount;
   final DateTime spendingDate;
   final void Function() longPressCallBack;
   final String username;
+  final String category;
 
   String _formatDate(DateTime date) {
     final day = date.day;
@@ -40,6 +44,8 @@ class Expense extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = styleForCategory(category);
+
     return Card(
       color: Color(0xffC9E4E7),
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -51,7 +57,10 @@ class Expense extends StatelessWidget {
         onLongPress: longPressCallBack,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        leading: Icon(Icons.receipt_long, color: Color(0xff087E8B)),
+        leading: CircleAvatar(
+          backgroundColor: style.color.withOpacity(0.15),
+          child: Icon(style.icon, color: style.color),
+        ),
         title: Text(
           description,
           style: TextStyle(

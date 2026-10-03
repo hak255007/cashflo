@@ -6,6 +6,29 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 final _firestore = FirebaseFirestore.instance;
 
+/// Expense categories. Keep the label stable since it's what gets stored
+/// in Firestore. Add or remove entries here and the dropdown updates.
+const List<String> kExpenseCategories = [
+  'Groceries',
+  'Rent',
+  'Investments',
+  'Fuel',
+  'Food & Dining',
+  'Hotels & Stay',
+  'Travel & Transport',
+  'Utilities & Bills',
+  'Shopping',
+  'Entertainment',
+  'Health & Medical',
+  'Education',
+  'Insurance',
+  'EMI & Loans',
+  'Subscriptions',
+  'Personal Care',
+  'Gifts & Donations',
+  'Other',
+];
+
 class AddExpenseScreen extends StatefulWidget {
   final String floId;
   const AddExpenseScreen({super.key, required this.floId});
@@ -18,6 +41,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+
+  String? _selectedCategory;
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    _amountController.dispose();
+    super.dispose();
+  }
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
@@ -44,6 +76,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       _firestore.collection(kExpenseCollection).add({
         'description': _descriptionController.text,
         'amount': double.tryParse(_amountController.text.trim()),
+        'category': _selectedCategory,
         'spending_date': DateTime.timestamp(),
         'flo_id': widget.floId,
         'user_id': userId,
@@ -64,14 +97,14 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       ),
       child: Container(
         padding: const EdgeInsets.all(20),
-// Constrain the height manually
-        height: 320, // or use MediaQuery.of(context).size.height * 0.3
+        // Constrain the height manually (increased to fit the category field)
+        height: 400,
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              const Text(
                 'Add Expense',
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 30, color: Color(0xff087E8B)),
@@ -79,70 +112,96 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               Row(
                 children: [
                   Expanded(
-                      child: TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      icon: Icon(
-                        Icons.description,
-                        color: Color(0xff3C3C3C),
+                    child: TextFormField(
+                      controller: _descriptionController,
+                      decoration: const InputDecoration(
+                        icon: Icon(
+                          Icons.description,
+                          color: Color(0xff3C3C3C),
+                        ),
+                        hintText: 'Enter details of your expense?',
+                        labelText: 'Description *',
                       ),
-                      hintText: 'Enter details of your expense?',
-                      labelText: 'Description *',
+                      validator: (String? value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Description cannot be empty';
+                        }
+                        return null;
+                      },
                     ),
-                    onSaved: (String? value) {
-                      // This optional block of code can be used to run
-                      // code when the user saves the form.
-                    },
-                    validator: (String? value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Description cannot be empty';
-                      }
-                      return null;
-                    },
-                  )),
+                  ),
                 ],
               ),
               Row(
                 children: [
                   Expanded(
-                      child: TextFormField(
-                    keyboardType:
-                        TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d*\.?\d{0,2}')),
-                    ],
-                    controller: _amountController,
-                    decoration: const InputDecoration(
-                      icon: Icon(
-                        Icons.currency_rupee,
-                        color: Color(0xff3C3C3C),
+                    child: TextFormField(
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d{0,2}')),
+                      ],
+                      controller: _amountController,
+                      decoration: const InputDecoration(
+                        icon: Icon(
+                          Icons.currency_rupee,
+                          color: Color(0xff3C3C3C),
+                        ),
+                        hintText: 'Enter Amount?',
+                        labelText: 'Amount *',
                       ),
-                      hintText: 'Enter Amount?',
-                      labelText: 'Amount *',
+                      validator: (String? value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Amount cannot be empty';
+                        }
+                        return null;
+                      },
                     ),
-                    onSaved: (String? value) {
-                      // This optional block of code can be used to run
-                      // code when the user saves the form.
-                    },
-                    validator: (String? value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Amount cannot be empty';
-                      }
-                      return null;
-                    },
-                  )),
+                  ),
                 ],
               ),
-              SizedBox(
-                height: 30,
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      isExpanded: true,
+                      menuMaxHeight: 300,
+                      decoration: const InputDecoration(
+                        icon: Icon(
+                          Icons.category,
+                          color: Color(0xff3C3C3C),
+                        ),
+                        labelText: 'Category *',
+                      ),
+                      hint: const Text('Select a category'),
+                      items: kExpenseCategories
+                          .map((category) => DropdownMenuItem<String>(
+                                value: category,
+                                child: Text(category),
+                              ))
+                          .toList(),
+                      onChanged: (String? value) {
+                        setState(() => _selectedCategory = value);
+                      },
+                      validator: (String? value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select a category';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 30),
               TextButton(
                 onPressed: () {
                   _submitForm();
                 },
-                style: TextButton.styleFrom(backgroundColor: Color(0xffFF5A5F)),
-                child: Text(
+                style: TextButton.styleFrom(
+                    backgroundColor: const Color(0xffFF5A5F)),
+                child: const Text(
                   'Add',
                   style: TextStyle(color: Colors.white),
                 ),
